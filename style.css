@@ -1,0 +1,21 @@
+
+/* жирный шрифт для вычисленных значений */
+.output {
+    font-weight: bold;
+}
+
+/* для элементов с id="payment" */
+#payment {
+    text-decoration: underline;
+}
+
+/* простая рамка для диаграммы */
+#graph {
+    border: solid black 1px;
+}
+
+/* выравнивание в ячейках таблиц */
+th, td {
+    vertical-align: top;
+}
+

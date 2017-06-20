@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Loan Calculator</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="calc.js" type="text/javascript" defer></script>
+</head>
+<body>
+<!--
+Это HTML-таблица с элементами <input>, позволяющими вводить данные, и с элементами <span>,
+в которых отображаются результаты вычислений.
+Эти элементы имеют идентификаторы, такие как "interest", "years".
+Данные идентифкаторы используются в JavaScript-коде, который следует за определением таблицы
+(на самом деле я перенес его в отдельный файл calc.js и подключаю его в заголовке html-файла. АЕ)
+Обрати внимание, что некоторые элементы ввода имеют обработчики событий "onchange" и "onclick".
+В них заданы строки кода JavaScript, выполняемого при вводе данных или щелчке на кнопку.
+-->
+<table>
+  <tr>
+    <th>Enter loan data:</th>
+    <td></td>
+    <th>Loan Balance, Cumulative Equity and Interest payments</th>
+  </tr>
+  <tr>
+    <td>Amount of the loan ($):</td>
+    <td><input id="amount" onchange="calculate();"></td>
+    <td rowspan="8"> <canvas id="graph" width="400" height="250"></canvas> </td>
+  </tr>
+  <tr>
+    <td>Annual interest(%):</td>
+    <td><input id="apr" onchange="calculate();"></td>
+  </tr>
+  <tr>
+    <td>Repayment period (years):</td>
+    <td><input id="years" onchange="calculate();"></td>
+  </tr>
+  <tr>
+    <td>Zipcode (to find lenders):</td>
+    <td><input id="zipcode" onchange="calculate();"></td>
+  </tr>
+  <tr>
+    <th>Approximate payments:</th>
+    <td><button onclick="calculate();">Calculate</button></td>
+  </tr>
+  <tr>
+    <td>Monthly payment:</td>
+    <td>$<span class="output" id="payment"></span></td>
+  </tr>
+  <tr>
+    <td>Total payment:</td>
+    <td>$<span class="output" id="total"></span></td>
+  </tr>
+  <tr>
+    <td>Total interest:</td>
+    <td>$<span class="output" id="totalinterest"></span></td>
+  </tr>
+  <tr>
+    <th>Sponsors:</th>
+    <td colspan="2">Apply for your loan with one of these lenders:
+      <div id="lenders"></div>
+    </td>
+  </tr>
+</table>
+
+</body>
+</html>
