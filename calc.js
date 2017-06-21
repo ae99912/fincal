@@ -109,8 +109,107 @@ function getLenders(amount, apr, years, zipcode)
 
 }
 
-// изобразить график
+// График помесячного изменения остатка по кредиту, а также графики
+// сумм, выплачиваемых в погашение кредита и по процентам в HTML-элементе
+// <canvas>.
+// если вызывается без аргументов, просто очищается ранее нарисованные графики.
+/**
+ * отобразить графики
+ * @param principal
+ * @param interest
+ * @param monthly
+ * @param payments
+ */
 function chart(principal, interest, monthly, payments)
 {
+
+    var graph = document.getElementById("graph"); // ссылка на тэг <canvas>
+    graph.width = graph.width;    // Магия очистки элемента <canvas>
+
+    // если функция вызвана без аргументов или браузер не поддерживает
+    // элемент <canvas>, то просто вернуть управление.
+    if(arguments.length == 0 || !graph.getContext) {
+      return;
+    }
+    // получить объект "контекста" для элемента <canvas>,
+    // который определяет набор методов рисования
+    var g = graph.getContext("2d");   // рисование выполняется с помощью этого объекта
+    var width = graph.width;          // получить ширину холста
+    var height = graph.height;        // получить высоту холста
+
+    // преобразуют кол-во месячных платежей
+    function paymentToX(n) {
+      return n * width / payments;
+    }
+    function amountToY(a) {
+      return height - (a * height / (monthly*payments*1.05));
+    }
+
+    // платежи - прямая линия из точки (0,0) в точку (payments, monthly * payments)
+    g.moveTo(paymentToX(0), amountToY(0));    // из нижнего левого угла
+    g.lineTo(paymentToX(payments), amountToY(monthly*payments)); // в правый верхний
+    g.lineTo(paymentToX(payments), amountToY(0)); // в правый нижний
+    g.closePath();    // и обратно в начало
+    g.fillStyle = "#f88"; // светло-красный
+    g.fill();             // залить треугольник
+    g.font = "bold 12px sans-serif";  // определить шрифт
+    g.fillText("Total Interest Payments", 20,20); // вывести текст в легенде
+
+    // кривая накопленной суммы погашения кредита не является линейной
+    // и вывод ее реализуется немного сложнее.
+    var equity = 0;
+    var p, thisMonthsInterest;
+    g.beginPath();    // новая фигура
+    g.moveTo(paymentToX(0), amountToY(0));    // из левого нижнего угла
+    for(p=1; p <= payments; p++) {
+        // для каждого платежа выяснить долю выплат по процентам
+        thisMonthsInterest = (principal-equity)*interest;
+        equity += (monthly - thisMonthsInterest);   // остаток - погашение кредита
+        g.lineTo(paymentToX(p), amountToY(equity));
+    }
+    g.lineTo(paymentToX(payments), amountToY(0));   // линию до оси X
+    g.closePath();                      // и опять в нач. точку
+    g.fillStyle = "green";              // заполнение зеленое
+    g.fill();                           // залить область под кривой
+    g.fillText("Total Equity", 20,35);  // надпись зеленым цветом
+
+    // повторить цикл, как выше, но нарисовать график остатка по кредиту
+    var bal = principal;
+    g.beginPath();
+    for(p=1; p <= payments; p++) {
+        thisMonthsInterest = bal * interest;
+        bal -= (monthly - thisMonthsInterest);    // остаток от погашения кредита
+        g.lineTo(paymentToX(p), amountToY(bal));  // линию до точки
+    }
+    g.lineWidth = 3;    // жирная линия
+    g.stroke();         // нарисовать кривую графика
+    g.fillStyle = "black";              // черный цвет для текста
+    g.fillText("Loan Balance", 20,50);  // элемент легенды
+
+    // нарисовать отметки лет на оси X
+    g.textAlign = "center";         // текст меток по центру
+    var y = amountToY(0);           // координата Y на оси X
+    for(var year=1; year*12 <= payments; year++) {  // для каждого года
+        var x = paymentToX(year * 12);    // вычислить позицию метки
+        g.fillRect(x - 0.5, y - 3, 1, 3);  // нарисовать метку
+        if (year == 1) g.fillText("Year", x, y - 5);   // подписать ось
+        if (year % 5 == 0 && year * 12 !== payments) { // числа через каждые 5 лет}
+            g.fillText(String(year), x, y - 5);
+        }
+    }
+
+    // суммы платежей у правой границы
+    g.textAlign = "right";      // текст по правому краю
+    g.textBaseline = "middle";  // центрировать по вертикали
+    var ticks = [monthly*payments, principal];  // вывести две суммы
+    var rightEdge = paymentToX(payments);       // Координата X на оси Y
+    for(var i = 0; i < ticks.length; i++) {     // для каждой из 2 сумм
+        y = amountToY(ticks[i]);            // определить координату Y
+        g.fillRect(rightEdge-3,y-0.5, 3,1);     // нарисовать метку
+        g.fillText(String(ticks[i].toFixed(0)), rightEdge-5,y);
+    }
+
+
+
 
 }
