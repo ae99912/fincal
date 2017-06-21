@@ -66,17 +66,42 @@ function calculate()
     // выплачиваемых в погашение кредита и по процентам
     chart(principal, interest, monthly, payments);
   }
-
-
-
 }
 
+// сохранить ввод пользователя в свойствах объекта localStorage. Значения этих свойств будут
+// доступны при повторном посещении страницы. В некоторых браузерах (Firefox) возможность сохранения
+// не поддерживается, если страница открывается с адресом RL вида file://. Однако она поддерживается
+// при открытии страницы через HTTP.
 
-// сохранить ввод пользователя в свойствах объекта localStorage
+/**
+ * сохраняет параметры в свойствах объекта localStorage
+ * @param amount
+ * @param apr
+ * @param years
+ * @param zipcode
+ */
 function save(amount, apr, years, zipcode)
 {
-
+  // выполнить сохранение если, поддерживается
+  if(window.localStorage) {
+    localStorage.loan_amount = amount;
+    localStorage.loan_apr = apr;
+    localStorage.loan_years = years;
+    localStorage.loan_zipcode = zipcode;
+  }
 }
+
+// (глобальная область)
+// автоматически восстановить поля ввода при загрузке документа
+window.onload = function() {
+  // если браузер поддерживает loacalStorage и имеются сохраненные данные
+  if(window.localStorage && localStorage.loan_amount) {
+    document.getElementById("amount").value = localStorage.loan_amount;
+    document.getElementById("apr").value = localStorage.loan_apr;
+    document.getElementById("years").value = localStorage.loan_years;
+    document.getElementById("zipcode").value = localStorage.loan_zipcode;
+  }
+};
 
 // передать ввод пользователя серверному сценарию
 function getLenders(amount, apr, years, zipcode)
