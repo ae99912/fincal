@@ -65,6 +65,13 @@ function calculate()
     // вывести график изменения остатка по кредиту, а также графики сумм,
     // выплачиваемых в погашение кредита и по процентам
     chart(principal, interest, monthly, payments);
+  } else {
+      // результат не является числом или имеет бесконечное значение, что означает,
+      // что были получены неполные или некорректные данные.
+      f_payment.innerHTML = "";
+      f_total.innerHTML = "";
+      f_totalinterest.innerHTML = "";
+      chart();
   }
 }
 
@@ -208,8 +215,4 @@ function chart(principal, interest, monthly, payments)
         g.fillRect(rightEdge-3,y-0.5, 3,1);     // нарисовать метку
         g.fillText(String(ticks[i].toFixed(0)), rightEdge-5,y);
     }
-
-
-
-
 }
