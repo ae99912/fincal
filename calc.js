@@ -111,9 +111,51 @@ window.onload = function() {
 };
 
 // передать ввод пользователя серверному сценарию
+// который может (теоретич) возвращать список ссылок на сайты местных кредитных
+// учреждений, готовых предоставить кредит.
+// Данный пример не включает фактическую реализацию такого сценария.
 function getLenders(amount, apr, years, zipcode)
 {
+    // если браузер не поддерживает объект XMLHttpRequest, не делать ничего
+    if(!window.XMLHttpRequest) return;
 
+    // отыскать элемент для отображения списка кредитных учреждений
+    var ad = document.getElementById("lenders");
+    if(!ad) return;     // выйти, если элемент отсутствует
+
+    // преобразовать ввод пользователя в параметры запроса в строке URL
+    var url = "http://localhost/getLenders.php" +    // адрес службы плюс данные пользователя
+            "?amt=" + encodeURIComponent(amount) +
+            "&apr=" + encodeURIComponent(apr) +
+            "&yrs=" + encodeURIComponent(years) +
+            "&zip=" + encodeURIComponent(zipcode);
+
+    // получить содержимое по заданному адресу URL с помощью XMLHttpRequest
+    var req = new XMLHttpRequest();     // создать новый запрос
+    req.open("GET", url);               // указать тип запроса HTTP GET
+    req.send(null);                     // отправить запрос без тела
+
+    // перед возвратом зарегистрировать обработчик событий, который будет вызываться
+    // при получении HTTP-ответа от сервера. Такой прием асинхронного программирования
+    // является довольно обычным в клиентском JavaScript
+    req.onreadystatechange = function () {
+        if(req.readyState == 4 && req.status == 200) {
+            // если мы попали сюда, значит был получен коректный HTTP-ответ
+            var response = req.responseText;    // HTTP-ответ в виде строки
+            var lenders = JSON.parse(response); // преобразовать в JS-массив
+
+            // преобразовать массив объектов lender в HTML-строку
+            var list = "";
+            for(var i = 0; i <lenders.length; i++) {
+                list += "<li><a href='" + lenders[i].url + "'>" +
+                        lenders[i].name + "</a>";
+            }
+
+            // отобразить полученную HTML-строку в элементе,
+            // ссылка на который была получена выше.
+            ad.innerHTML = "<ul>" + list + "</ul>";
+        }
+    }
 }
 
 // График помесячного изменения остатка по кредиту, а также графики
